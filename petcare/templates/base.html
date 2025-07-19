@@ -43,12 +43,15 @@
                         <li class="nav-item"><a class="nav-link" href="{{ url_for('register_page') }}">Register</a></li>
                     {% endif %}
                     <!-- ** NEW: Theme Toggle Button ** -->
-                    <li class="nav-item ms-lg-2">
-                        <button class="theme-switch" id="theme-toggle" title="Toggle dark mode">
-                            <i class="fas fa-moon"></i>
-                            <i class="fas fa-sun"></i>
-                        </button>
-                    </li>
+                    <div class="theme-switch-wrapper ms-3">
+                        <label class="theme-switch" for="theme-toggle-checkbox">
+                            <input type="checkbox" id="theme-toggle-checkbox" />
+                            <div class="slider round">
+                                <i class="fas fa-moon"></i>
+                                <i class="fas fa-sun"></i>
+                            </div>
+                        </label>
+                    </div>
                 </ul>
             </div>
         </div>
@@ -89,18 +92,19 @@
 
     <!-- ** NEW: JavaScript for Theme Toggling ** -->
     <script>
+        // ** NEW: JavaScript for Classic Toggle Switch **
         (function() {
-            const themeToggle = document.getElementById('theme-toggle');
+            const themeToggle = document.getElementById('theme-toggle-checkbox');
             const htmlElement = document.documentElement;
 
             function setTheme(theme) {
                 localStorage.setItem('theme', theme);
                 htmlElement.setAttribute('data-theme', theme);
+                themeToggle.checked = theme === 'dark';
             }
 
-            themeToggle.addEventListener('click', () => {
-                const currentTheme = htmlElement.getAttribute('data-theme');
-                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            themeToggle.addEventListener('change', () => {
+                const newTheme = themeToggle.checked ? 'dark' : 'light';
                 setTheme(newTheme);
             });
 
@@ -108,11 +112,11 @@
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
             if (savedTheme) {
-                htmlElement.setAttribute('data-theme', savedTheme);
+                setTheme(savedTheme);
             } else if (prefersDark) {
-                htmlElement.setAttribute('data-theme', 'dark');
+                setTheme('dark');
             } else {
-                htmlElement.setAttribute('data-theme', 'light');
+                setTheme('light');
             }
         })();
     </script>

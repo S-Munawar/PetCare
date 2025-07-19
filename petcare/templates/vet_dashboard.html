@@ -17,14 +17,12 @@
                         <a href="{{ url_for('pet_health_history_page', pet_id=pet._id) }}" class="btn btn-info btn-sm me-2">
                             <i class="fas fa-history"></i> History
                         </a>
-                        <!-- ** NEW: Remove button ** -->
-                        <form action="{{ url_for('remove_consulted_pet', pet_id=pet._id) }}" method="POST" class="d-inline">
-                            <button type="submit" class="btn btn-danger btn-sm" title="Remove from your list">
-                                <i class="fas fa-times-circle"></i> Remove
-                            </button>
-                        </form>
+                        <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#removeConsultedPetModal-{{ pet._id }}" title="Remove from your list">
+                            <i class="fas fa-times-circle"></i> Remove
+                        </button>
                     </div>
                 </div>
+                {% include 'includes/remove_consulted_pet_modal.html' %}
             {% endfor %}
         </div>
     {% else %}

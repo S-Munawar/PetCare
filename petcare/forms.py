@@ -1,6 +1,5 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, SelectField, TextAreaField, DateField
-# The 'Email' validator will automatically use the 'email-validator' library if it's installed.
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from petcare import mongo
 from flask_login import current_user
@@ -202,18 +201,16 @@ country_codes = [
     ('+263', 'Zimbabwe (+263)'),
 ]
 
-
 # --- Registration Forms ---
+
 class RegistrationForm(FlaskForm):
-    """Base registration form with common fields and country code selector."""
+    """Base registration form for standard users."""
     username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
     email = StringField('Email', validators=[DataRequired(), Email("This field requires a valid email address.")])
     password = PasswordField('Password', validators=[DataRequired()])
     confirm_password = PasswordField('Confirm Password', validators=[EqualTo('password')])
-
     country_code = SelectField('Country Code', choices=country_codes, validators=[DataRequired()])
     phone = StringField('Phone Number', validators=[DataRequired(), Length(min=8, max=15)])
-
     address = TextAreaField('Address', validators=[DataRequired(), Length(min=10, max=200)])
     submit = SubmitField('Register')
 
@@ -225,9 +222,8 @@ class RegistrationForm(FlaskForm):
         if mongo.db.users.find_one({"email": email_to_check.data.lower()}):
             raise ValidationError('Email address already registered!')
 
-
 class VetRegistrationForm(RegistrationForm):
-    """Specific registration form for Vets."""
+    """Specific registration form for Vets, inheriting from the base form."""
     vet_license = StringField('Vet License', validators=[DataRequired(), Length(min=10, max=10)])
     qualification = StringField('Highest Qualification', validators=[DataRequired(), Length(min=2, max=50)])
 
@@ -237,16 +233,36 @@ class VetRegistrationForm(RegistrationForm):
         if not mongo.db.vetlicenses.find_one({"vet_license": vet_license_to_check.data}):
             raise ValidationError('This Vet License is not valid!')
 
+# --- Login Forms ---
+
+class LoginForm(FlaskForm):
+    """Login form for Pet Owners and Admins."""
+    username = StringField('Username', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    submit = SubmitField('Login')
+
+class VetLoginForm(FlaskForm):
+    """Dedicated login form for Vets requiring a license."""
+    username = StringField('Username', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    vet_license = StringField('Vet License', validators=[DataRequired(), Length(min=10, max=10)])
+    submit = SubmitField('Login as Veterinarian')
+
+# --- Profile Completion & Editing Forms ---
+
+class CompleteUserRegistrationForm(FlaskForm):
+    """Form for a new Google user to complete their pet owner profile."""
+    country_code = SelectField('Country Code', choices=country_codes, validators=[DataRequired()])
+    phone = StringField('Phone Number', validators=[DataRequired(), Length(min=8, max=15)])
+    address = TextAreaField('Address', validators=[DataRequired(), Length(min=10, max=200)])
+    submit = SubmitField('Complete Profile')
 
 class CompleteVetRegistrationForm(FlaskForm):
     """Form for a new Google user to complete their vet profile."""
     vet_license = StringField('Vet License', validators=[DataRequired(), Length(min=10, max=10)])
     qualification = StringField('Highest Qualification', validators=[DataRequired(), Length(min=2, max=50)])
-
-    # ** NEW: Added Country Code and Phone fields **
     country_code = SelectField('Country Code', choices=country_codes, validators=[DataRequired()])
     phone = StringField('Phone Number', validators=[DataRequired(), Length(min=8, max=15)])
-
     address = TextAreaField('Address', validators=[DataRequired(), Length(min=10, max=200)])
     submit = SubmitField('Complete Registration')
 
@@ -257,41 +273,16 @@ class CompleteVetRegistrationForm(FlaskForm):
         if not mongo.db.vetlicenses.find_one({"vet_license": vet_license_to_check.data}):
             raise ValidationError('This Vet License is not valid! Please contact an admin.')
 
-
-# --- Login Forms ---
-class LoginForm(FlaskForm):
-    """Login form for Pet Owners and Admins."""
-    username = StringField('Username', validators=[DataRequired()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    submit = SubmitField('Login')
-
-
-class VetLoginForm(FlaskForm):
-    """Dedicated login form for Vets requiring license."""
-    username = StringField('Username', validators=[DataRequired()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    vet_license = StringField('Vet License', validators=[DataRequired(), Length(min=10, max=10)])
-    submit = SubmitField('Login as Veterinarian')
-
-
-# --- Profile Editing Form ---
 class EditProfileForm(FlaskForm):
     """A single form to handle profile edits for both Users and Vets."""
     username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
-    # Email is no longer editable, so we don't need a validator here.
-    # It will be handled in the template and route.
     email = StringField('Email', render_kw={'readonly': True})
-
     country_code = SelectField('Country Code', choices=country_codes, validators=[DataRequired()])
-    # ** UPDATED: Changed max length to 15 **
-    phone = StringField('Phone Number', validators=[DataRequired(), Length(min=8, max=15,
-                                                                           message="Phone number must be between 8 and 15 digits.")])
-
+    phone = StringField('Phone Number', validators=[DataRequired(), Length(min=8, max=15, message="Phone number must be between 8 and 15 digits.")])
     address = TextAreaField('Address', validators=[DataRequired(), Length(min=10, max=200)])
     qualification = StringField('Highest Qualification (for Vets)', validators=[Length(max=50)])
     password = PasswordField('New Password (optional)')
-    confirm_password = PasswordField('Confirm New Password',
-                                     validators=[EqualTo('password', message='Passwords must match')])
+    confirm_password = PasswordField('Confirm New Password', validators=[EqualTo('password', message='Passwords must match')])
     submit = SubmitField('Update Profile')
 
     def validate_username(self, username_to_check):
@@ -299,36 +290,22 @@ class EditProfileForm(FlaskForm):
             if mongo.db.users.find_one({"username": username_to_check.data.title()}):
                 raise ValidationError('That username is taken. Please choose a different one.')
 
+# --- Data Management Forms (Pets & Vets) ---
 
-# --- Pet & Admin Forms ---
 class AddPet(FlaskForm):
-    dog_breeds = [("Labrador Retriever", "Labrador Retriever"), ("German Shepherd", "German Shepherd"),
-                  ("Golden Retriever", "Golden Retriever"), ("Bulldog", "Bulldog"), ("Poodle", "Poodle"),
-                  ("Beagle", "Beagle"), ("Other", "Other")]
-    cat_breeds = [("Domestic Shorthair", "Domestic Shorthair"), ("Siamese", "Siamese"), ("Persian", "Persian"),
-                  ("Maine Coon", "Maine Coon"), ("Bengal", "Bengal"), ("Sphynx", "Sphynx"), ("Other", "Other")]
-    horse_breeds = [("Thoroughbred", "Thoroughbred"), ("Quarter Horse", "Quarter Horse"), ("Arabian", "Arabian"),
-                    ("Paint Horse", "Paint Horse"), ("Appaloosa", "Appaloosa"), ("Morgan", "Morgan"),
-                    ("Other", "Other")]
+    """Form to add a new pet."""
+    dog_breeds = [("Labrador Retriever", "Labrador Retriever"), ("German Shepherd", "German Shepherd"), ("Golden Retriever", "Golden Retriever"), ("Bulldog", "Bulldog"), ("Poodle", "Poodle"), ("Beagle", "Beagle"), ("Other", "Other")]
+    cat_breeds = [("Domestic Shorthair", "Domestic Shorthair"), ("Siamese", "Siamese"), ("Persian", "Persian"), ("Maine Coon", "Maine Coon"), ("Bengal", "Bengal"), ("Sphynx", "Sphynx"), ("Other", "Other")]
+    horse_breeds = [("Thoroughbred", "Thoroughbred"), ("Quarter Horse", "Quarter Horse"), ("Arabian", "Arabian"), ("Paint Horse", "Paint Horse"), ("Appaloosa", "Appaloosa"), ("Morgan", "Morgan"), ("Other", "Other")]
 
     pet_name = StringField('Pet Name', validators=[DataRequired()])
-    pet_species = SelectField('Pet Species', choices=[("Dog", "Dog"), ("Cat", "Cat"), ("Horse", "Horse")],
-                              validators=[DataRequired()])
+    pet_species = SelectField('Pet Species', choices=[("Dog", "Dog"), ("Cat", "Cat"), ("Horse", "Horse")], validators=[DataRequired()])
     pet_breed = SelectField('Breed', choices=[], validators=[DataRequired()])
-    pet_gender = SelectField("Pet Gender", choices=[("Male", "Male"), ("Female", "Female")],
-                             validators=[DataRequired()])
+    pet_gender = SelectField("Pet Gender", choices=[("Male", "Male"), ("Female", "Female")], validators=[DataRequired()])
     pet_dob = DateField('Date of Birth', validators=[DataRequired()])
     submit = SubmitField('Add Pet')
 
-
 class AddVet(FlaskForm):
-    """Form for Admin to add new Vet Licenses."""
+    """Form for an Admin to add a new Vet License."""
     vet_license = StringField('Vet Licence', validators=[DataRequired(), Length(min=10, max=10)])
     submit = SubmitField('Add Vet')
-
-class CompleteUserRegistrationForm(FlaskForm):
-    """Form for a new Google user to complete their pet owner profile."""
-    country_code = SelectField('Country Code', choices=country_codes, validators=[DataRequired()])
-    phone = StringField('Phone Number', validators=[DataRequired(), Length(min=8, max=15)])
-    address = TextAreaField('Address', validators=[DataRequired(), Length(min=10, max=200)])
-    submit = SubmitField('Complete Profile')

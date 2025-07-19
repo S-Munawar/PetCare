@@ -140,25 +140,7 @@
 
                     <!-- Delete Confirmation Modal -->
                     {% if is_owner %}
-                    <div class="modal fade" id="deleteReportModal-{{ report._id }}" tabindex="-1">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title">Confirm Deletion</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                </div>
-                                <div class="modal-body">
-                                    Are you sure you want to permanently delete this health report?
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                    <form action="{{ url_for('delete_health_report', report_id=report._id) }}" method="POST">
-                                        <button type="submit" class="btn btn-danger">Delete</button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                        {% include 'includes/delete_report_modal.html' %} {# CHANGED: Added 'includes/' to the path #}
                     {% endif %}
                 {% endfor %}
             </div>
@@ -170,27 +152,7 @@
 
         <!-- Modal for Deleting Selected Reports -->
         {% if is_owner %}
-        <div class="modal fade" id="deleteSelectedModal" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Confirm Bulk Deletion</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        Are you sure you want to permanently delete the selected health reports?
-                    </div>
-                    <div class="modal-footer">
-                        <form id="deleteSelectedForm" action="{{ url_for('delete_selected_reports') }}" method="POST">
-                            <input type="hidden" name="report_ids_to_delete" id="report_ids_to_delete">
-                            <input type="hidden" name="pet_id" value="{{ pet._id }}">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-danger">Delete Selected</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
+            {% include 'includes/delete_selected_modal.html' %} {# CHANGED: Added 'includes/' to the path #}
         {% endif %}
     </div>
 </div>

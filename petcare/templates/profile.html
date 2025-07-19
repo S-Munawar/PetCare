@@ -48,7 +48,7 @@
         </div>
         {# INCLUDE THE MODAL TEMPLATE ONCE FOR EACH PET AT THE END OF THE PETS SECTION #}
         {% for pet in pets %}
-            {% include 'includes/pet_modals.html' %} {# CHANGED: Added 'includes/' to the path #}
+            {% include 'includes/remove_pet_modal.html' %} {# CHANGED: Added 'includes/' to the path #}
         {% endfor %}
     {% else %}
         <p>{{ current_user.username }} has not added any pets yet.</p>

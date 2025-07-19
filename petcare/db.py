@@ -1,26 +1,13 @@
-from petcare import app, db, mongo
-from petcare.models import User, Pet
-from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker
+from petcare import app, mongo
+
+# This script is a utility for performing one-off manual database tasks
+# directly on your MongoDB database. It is not part of the main application flow.
+
+# To use it, you would typically uncomment a command and run the file
+# from your terminal.
 
 with app.app_context():
-    # db.drop_all()
-    # db.create_all()
+    # Example: Create a new collection in MongoDB
+    # mongo.db.create_collection("new_collection_name")
 
-    # Update all records with a default value for pet_gender
-    # db.session.execute(text('UPDATE Pet SET pet_gender = "Male" WHERE pet_gender IS NULL'))
-    # db.session.commit()
-
-    # Close the session
-    db.session.close()
-    # mongo.db.create_collection("PetReports")
-# This will create tables if they do not already exist.
-    #
-    # u1 = User(username='Shaik', email='shaik@gmail.com', password='123456789')
-    #
-    # # Add the user to the session and commit to the database
-    # db.session.add(u1)
-    # db.session.commit()
-    #
-    # # Print the user to confirm it's added
-    # print(u1)
+    print("Database utility script loaded. No automatic operations were performed.")

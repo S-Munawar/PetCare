@@ -1,0 +1,23 @@
+{#
+  This modal confirms the removal of a pet from a vet's consulted list.
+  It expects a `pet` object in its context.
+#}
+<div class="modal fade" id="removeConsultedPetModal-{{ pet._id }}" tabindex="-1" aria-labelledby="removeConsultedPetModalLabel-{{ pet._id }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="removeConsultedPetModalLabel-{{ pet._id }}">Confirm Removal</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to remove <strong>{{ pet.name }}</strong> from your consulted pets list? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form action="{{ url_for('remove_consulted_pet', pet_id=pet._id) }}" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-danger">Remove Pet</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
