@@ -1,53 +1,79 @@
-# PetCare
+# PetCare - Intelligent Pet Health Management
 
-A comprehensive pet care management system that helps pet owners and veterinarians manage pet health records, appointments, and care schedules.
+PetCare is a modern web application designed to empower pet owners and veterinarians with the tools they need to manage and monitor pet health effectively. By leveraging a machine learning model, the platform provides data-driven insights, personalized recommendations, and a centralized system for tracking a pet's health history.
 
-## Features
+## Key Features ✨
 
-- Pet profile management
-- Appointment scheduling
-- Health record tracking
-- Medication reminders
-- Vaccination records
+* **Intelligent Health Analysis:** Get instant health assessments (Healthy, At-Risk, Unhealthy) based on a pet's vital signs, symptoms, and lifestyle factors.
+* **Comprehensive Pet Profiles:** Manage detailed profiles for multiple pets, including their species, breed, gender, and date of birth.
+* **Complete Health History:** Keep a chronological record of all health analyses, making it easy to track a pet's wellness over time and share it with professionals.
+* **Veterinarian & Admin Dashboards:** Dedicated portals for veterinarians to manage consulted pets and for administrators to approve new veterinarian licenses.
+* **Secure Authentication:** Robust login system with email verification and Google OAuth for both pet owners and veterinarians.
+* **Light & Dark Mode:** A modern, theme-able user interface for a comfortable viewing experience.
+
+## Technology Stack 🛠️
+
+* **Backend:** Flask, Flask-Login, Flask-Bcrypt, Gunicorn
+* **Database:** MongoDB (with Flask-PyMongo)
+* **Machine Learning:** Scikit-learn, Pandas, NumPy
+* **Frontend:** HTML, CSS, JavaScript, Bootstrap
+* **Authentication:** Google OAuth, Flask-Mail for email verification
+* **Deployment:** Docker
 
 ## Getting Started
 
+Follow these instructions to get a local copy of the project up and running.
+
 ### Prerequisites
 
-- Flask
-- Database (MongoDB & SQLlite)
+* Python 3.9 or higher
+* A running MongoDB instance (local or cloud-based)
 
 ### Installation
 
-1. Clone the repository
-git clone https://github.com/yourusername/PetCare.git
+1.  **Clone the Repository**
+    ```bash
+    git clone [https://github.com/yourusername/PetCare.git](https://github.com/yourusername/PetCare.git)
+    cd PetCare
+    ```
 
-2. Configure environment variables
-python -m venv venv
-venv\Scripts\activate
-pip install -r requirements.txt
+2.  **Create and Activate a Virtual Environment**
+    ```bash
+    # On Windows
+    python -m venv venv
+    venv\Scripts\activate
 
-3. Start the application
-set FLASK_APP=run.py
-set FLASK_DEBUG=1
-python run.py or flask run or python -m flask run (If using a virtual environment)
+    # On macOS/Linux
+    python3 -m venv venv
+    source venv/bin/activate
+    ```
 
-## Screenshots
+3.  **Install Dependencies**
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-![Register](Images/1.png)
-![Login](Images/2.png)
-![Home](Images/3.png)
-![Add Pet](Images/4.png)
-![Pet Health Analysis](Images/5.png)
-![Consult Veteran](Images/6.png)
-![Profile](Images/7.png)
+4.  **Configure Environment Variables**
+    * Create a file named `.env` in the root of the project.
+    * Add your configuration details to this file. It must include your MongoDB connection string and a secret key.
+        ```env
+        SECRET_KEY='a_very_long_and_random_secret_key'
+        MONGO_URI='your_mongodb_connection_string'
+        
+        # Example for local MongoDB:
+        # MONGO_URI='mongodb://localhost:27017/petcare_db'
+        
+        # Email Configuration (for verification emails)
+        MAIL_SERVER='smtp.gmail.com'
+        MAIL_PORT=587
+        MAIL_USE_TLS=True
+        MAIL_USERNAME='your_email@gmail.com'
+        MAIL_PASSWORD='your_app_password' 
+        ```
 
-## Contributing
+### Running the Application
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Once everything is installed and configured, you can start the Flask development server:
 
-## Author
-
-Shaik Abdul Munawar
-
-[LinkedIn Profile](https://www.linkedin.com/in/shaik-abdul-munawar-b35821284)
+```bash
+flask run
