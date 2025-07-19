@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Account Not Verified{% endblock %}
+
+{% block content %}
+<div class="container text-center mt-5">
+    <div class="card p-5" style="max-width: 600px; margin: auto;">
+        <h1 class="mb-3">Please Verify Your Account</h1>
+        <p class="lead text-muted">A verification link was sent to your email address when you registered.</p>
+        <p>You must verify your account before you can log in. Please check your inbox (and spam folder).</p>
+        <hr>
+        <p>Didn't receive the email or the link has expired?</p>
+        <a href="{{ url_for('resend_verification') }}" class="btn btn-primary">Resend Verification Email</a>
+    </div>
+</div>
+{% endblock %}

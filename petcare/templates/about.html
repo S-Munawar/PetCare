@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}About Us{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <!-- Header Section -->
+    <div class="text-center mb-5">
+        <h1 class="display-4">About PetCare</h1>
+        <p class="lead text-muted">Your Partner in Enhancing Animal Health</p>
+    </div>
+
+    <!-- Our Mission Section -->
+    <div class="row align-items-center mb-5">
+        <div class="col-md-6">
+            <h2>Our Mission</h2>
+            <p class="text-secondary">At PetCare, our mission is to empower pet owners and veterinarians with intelligent, data-driven tools for a healthier, happier life for every pet. We believe in proactive care and aim to bridge the gap between caregivers and professional veterinary science through accessible technology.</p>
+            <p class="text-secondary">Our platform is designed to provide timely, accurate, and species-specific diagnostics, ensuring your companions receive the personalized care they deserve.</p>
+        </div>
+        <div class="col-md-6 text-center">
+            <img src="{{ url_for('static', filename='PetCare.jpg') }}" alt="Happy Pet" class="img-fluid rounded-circle shadow-lg" style="max-width: 300px;">
+        </div>
+    </div>
+
+    <hr class="my-5">
+
+    <!-- Key Features Section -->
+    <div class="text-center mb-5">
+        <h2>Why Choose PetCare?</h2>
+        <p class="lead text-muted">We provide a comprehensive approach to pet wellness.</p>
+    </div>
+    <div class="row text-center">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <i class="fas fa-heartbeat fa-3x mb-3" style="color: var(--danger);"></i>
+                    <h5 class="card-title">Intelligent Health Analysis</h5>
+                    <p class="card-text text-muted">Leverage our advanced model to get instant insights into your pet's health based on vital signs and symptoms.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <i class="fas fa-user-md fa-3x mb-3" style="color: var(--info);"></i>
+                    <h5 class="card-title">Veterinarian Connectivity</h5>
+                    <p class="card-text text-muted">Connect with licensed veterinarians, share health reports, and manage a list of your consulted pets with ease.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <i class="fas fa-history fa-3x mb-3" style="color: var(--success);"></i>
+                    <h5 class="card-title">Complete Health History</h5>
+                    <p class="card-text text-muted">Keep a detailed, chronological record of all health analyses, making it easy to track your pet's wellness over time.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr class="my-5">
+
+    <!-- Our Team Section -->
+    <div class="text-center mb-5">
+        <h2>Our Team</h2>
+        <p class="lead text-muted">Dedicated to the well-being of your pets.</p>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-lg-4 col-md-6 text-center">
+            <div class="card">
+                <div class="card-body">
+                    <!-- ** UPDATED: Changed placeholder image color to primary theme color ** -->
+                    <img src="https://placehold.co/150x150/007bff/FFFFFF?text=SM" class="rounded-circle mb-3" alt="Team Member">
+                    <h5 class="card-title">Shaik Abdul Munawar</h5>
+                    <p class="text-muted">Lead Developer</p>
+                    <p>The visionary behind PetCare, dedicated to leveraging technology for animal welfare.</p>
+                    <a href="https://www.linkedin.com/in/shaik-abdul-munawar-b35821284" class="btn btn-sm btn-primary" target="_blank">
+                        <i class="fab fa-linkedin"></i> View Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

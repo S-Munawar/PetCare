@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}Edit Profile{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="form-container">
+        <form method="POST" action="">
+            {{ form.hidden_tag() }}
+            <div class="text-center mb-4">
+                <h1 class="mt-3">Edit Your Profile</h1>
+            </div>
+
+            <div class="mb-3">
+                {{ form.username.label(class="form-label") }}
+                {# The readonly attribute is set in the route for vets #}
+                {{ form.username(class="form-control form-control-lg" + (" is-invalid" if form.username.errors else "")) }}
+                {% if form.username.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.username.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.email.label(class="form-label") }}
+                {{ form.email(class="form-control form-control-lg" + (" is-invalid" if form.email.errors else "")) }}
+                {% if form.email.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.email.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.phone.label(class="form-label") }}
+                <div class="input-group">
+                    {{ form.country_code(class="form-select" + (" is-invalid" if form.country_code.errors else ""), style="max-width: 150px;") }}
+                    {{ form.phone(class="form-control form-control-lg" + (" is-invalid" if form.phone.errors else "")) }}
+                </div>
+                {% if form.phone.errors or form.country_code.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.phone.errors %}<span>{{ error }}</span>{% endfor %}
+                        {% for error in form.country_code.errors %}<span>{{ error }}</span>{% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.address.label(class="form-label") }}
+                {{ form.address(class="form-control form-control-lg" + (" is-invalid" if form.address.errors else ""), rows=3) }}
+                {% if form.address.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.address.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            {% if current_user.is_vet %}
+            <div class="mb-3">
+                {{ form.qualification.label(class="form-label") }}
+                {{ form.qualification(class="form-control form-control-lg" + (" is-invalid" if form.qualification.errors else "")) }}
+                {% if form.qualification.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.qualification.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <hr class="my-4">
+            <h5 class="mb-3 text-muted">Change Password (Optional)</h5>
+
+            <div class="mb-3">
+                {{ form.password.label(class="form-label") }}
+                {{ form.password(class="form-control form-control-lg" + (" is-invalid" if form.password.errors else "")) }}
+                {% if form.password.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.password.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.confirm_password.label(class="form-label") }}
+                {{ form.confirm_password(class="form-control form-control-lg" + (" is-invalid" if form.confirm_password.errors else "")) }}
+                {% if form.confirm_password.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.confirm_password.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="d-grid mt-4">
+                {{ form.submit(class="btn btn-primary btn-lg") }}
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

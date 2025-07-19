@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .card-header .fas { margin-right: 10px; }
+    .form-section-card { margin-bottom: 1.5rem; border: 1px solid #dee2e6; border-radius: .5rem; }
+    .loading-spinner { display: none; margin-top: 15px; }
+    /* MODIFIED: Use CSS variable for background-color */
+    .result-card { background-color: var(--bg-surface); border-left: 5px solid; margin-bottom: 1.5rem; }
+    .result-card-healthy { border-left-color: #198754; }
+    .result-card-at-risk { border-left-color: #ffc107; }
+    .result-card-unhealthy { border-left-color: #dc3545; }
+    .recommendations .card-header { font-size: 1.1rem; color: #0d6efd; font-weight: 500; background-color: #f8f9fa;}
+    .vet-care-item { display: flex; justify-content: space-between; align-items: center; }
+    .priority-badge { font-size: 0.8rem; padding: 0.4em 0.7em; }
+    .vital-feedback { font-size: 0.8rem; font-weight: bold; }
+    .text-success { color: #198754 !important; }
+    .text-warning { color: #ffc107 !important; }
+    .text-danger { color: #dc3545 !important; }
+    .is-invalid { border-color: #dc3545; }
+</style>
+
+<div class="container mt-5">
+    <div class="text-center mb-4">
+        <img src="{{ url_for('static', filename='PetCare.jpg') }}" class="shadow-sm mx-auto d-block" alt="PetCare Logo" style="width: 100px; height: 100px; border-radius: 50%;">
+        <h2 class="mt-3">Health Assessment for {{ selected_pet.name }}</h2>
+        <p class="lead text-muted">Fill in the details below to analyze your pet's health.</p>
+    </div>
+
+    <form id="predictionForm" novalidate>
+        <div id="validation-error-message" class="alert alert-danger" style="display: none;"></div>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card form-section-card">
+                    <div class="card-header"><i class="fas fa-paw"></i>Basic Information</div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3"><label for="species" class="form-label">Species</label><input type="text" class="form-control" id="species" value="{{ selected_pet.species }}" readonly></div>
+                            <div class="col-md-6 mb-3"><label for="breed" class="form-label">Breed</label><input type="text" class="form-control" id="breed" value="{{ breed or '' }}" readonly></div>
+                            <div class="col-md-6 mb-3">
+                                <label for="age" class="form-label">Age (years)</label>
+                                <input type="number" class="form-control" id="age" readonly required>
+                                <input type="hidden" id="dob" value="{{ selected_pet.dob.strftime('%Y-%m-%d') if selected_pet.dob else '' }}">
+                            </div>
+                            <div class="col-md-6 mb-3"><label for="weight" class="form-label">Weight (kg)</label><input type="number" class="form-control" id="weight" placeholder="e.g., 12.5" required></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card form-section-card">
+                    <div class="card-header"><i class="fas fa-heartbeat"></i>Vital Signs</div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="temperature" class="form-label">Temperature (°C)</label>
+                                <input type="number" class="form-control" id="temperature" step="0.1" placeholder="e.g., 38.5" required>
+                                <div id="temp-feedback" class="vital-feedback mt-1"></div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="heart_rate" class="form-label">Heart Rate</label>
+                                <input type="number" class="form-control" id="heart_rate" placeholder="e.g., 80" required>
+                                <div id="hr-feedback" class="vital-feedback mt-1"></div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="respiratory_rate" class="form-label">Respiratory Rate</label>
+                                <input type="number" class="form-control" id="respiratory_rate" placeholder="e.g., 20" required>
+                                <div id="rr-feedback" class="vital-feedback mt-1"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card form-section-card">
+                    <div class="card-header"><i class="fas fa-notes-medical"></i>Health & Lifestyle</div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3"><label for="vaccination_status" class="form-label">Vaccination Status</label><select class="form-select" id="vaccination_status" required><option value="Up to Date" selected>Up to Date</option><option value="Overdue">Overdue</option><option value="Not Vaccinated">Not Vaccinated</option></select></div>
+                            <div class="col-md-6 mb-3"><label for="hydration_status" class="form-label">Hydration Status</label><select class="form-select" id="hydration_status" required><option value="Well Hydrated" selected>Well Hydrated</option><option value="Slightly Dehydrated">Slightly Dehydrated</option><option value="Dehydrated">Dehydrated</option></select></div>
+                            <div class="col-md-6 mb-3"><label for="activity_level" class="form-label">Activity Level</label><select class="form-select" id="activity_level" required><option value="High" selected>High</option><option value="Moderate">Moderate</option><option value="Low">Low</option></select></div>
+                            <div class="col-md-6 mb-3"><label for="diet" class="form-label">Recent Diet Quality</label><select class="form-select" id="diet" required><option value="Balanced" selected>Balanced</option><option value="Needs Improvement">Needs Improvement</option><option value="Poor">Poor</option></select></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card form-section-card">
+                    <div class="card-header"><i class="fas fa-stethoscope"></i>Observed Symptoms</div>
+                    <div class="card-body">
+                        <label for="general_symptoms" class="form-label">Select all that apply:</label>
+                        <select class="form-select" id="general_symptoms" multiple size="6">
+                            <option value="Vomiting">Vomiting</option><option value="Lethargy">Lethargy</option><option value="Coughing">Coughing</option><option value="Diarrhea">Diarrhea</option><option value="Weight Loss">Weight Loss</option><option value="Difficulty Breathing">Difficulty Breathing</option><option value="Anxiety">Anxiety</option><option value="Limping">Limping</option><option value="Skin Irritation">Skin Irritation</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-3"><button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-search-plus"></i> Analyze Health</button><div class="spinner-border text-primary loading-spinner" role="status"><span class="visually-hidden">Loading...</span></div></div>
+    </form>
+
+    <div id="predictionResult" class="mt-5"></div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const vitalRanges = {
+            "Dog":   { temp: { n_min: 37.5, n_max: 39.2, a_min: 35, a_max: 42 },  hr: { n_min: 60,  n_max: 140, a_min: 40, a_max: 240 }, rr: { n_min: 10, n_max: 35, a_min: 5,  a_max: 60 } },
+            "Cat":   { temp: { n_min: 38.1, n_max: 39.2, a_min: 36, a_max: 41 },  hr: { n_min: 140, n_max: 220, a_min: 120,a_max: 260 }, rr: { n_min: 20, n_max: 30, a_min: 15, a_max: 50 } },
+            "Horse": { temp: { n_min: 37.2, n_max: 38.6, a_min: 36, a_max: 40 },  hr: { n_min: 28,  n_max: 44,  a_min: 20, a_max: 80 },  rr: { n_min: 10, n_max: 24, a_min: 8,  a_max: 40 } }
+        };
+        const species = document.getElementById('species').value;
+        const ranges = vitalRanges[species];
+
+        // START OF FIX: More precise Age calculation from DOB (including months)
+        const dobInput = document.getElementById('dob');
+        const ageInput = document.getElementById('age');
+
+        if (dobInput && ageInput && dobInput.value) {
+            const dobString = dobInput.value; // e.g., "YYYY-MM-DD"
+            const dob = new Date(dobString); // Create Date object. It's usually best to let the browser parse directly if format is YYYY-MM-DD
+
+            const today = new Date(); // Current date and time
+
+            let years = today.getFullYear() - dob.getFullYear();
+            let months = today.getMonth() - dob.getMonth();
+            let days = today.getDate() - dob.getDate();
+
+            // Adjust years if birthday hasn't occurred yet this year
+            if (months < 0 || (months === 0 && days < 0)) {
+                years--;
+            }
+
+            // Adjust months if current day is before birth day
+            if (days < 0) {
+                months--;
+                // If months become negative after adjusting for days, carry over from years
+                if (months < 0) {
+                    months = 11; // Max months in a year
+                }
+            }
+
+            // Ensure months are positive (0-11)
+            months = (months % 12 + 12) % 12;
+
+            // Calculate fractional years
+            // This is a common way to represent age including months (e.g., 3.5 years)
+            const preciseAge = years + (months / 12);
+
+            // Set the calculated age, formatted to two decimal places
+            ageInput.value = preciseAge.toFixed(2);
+        }
+        // END OF FIX: More precise Age calculation from DOB
+
+        function validateVital(inputId, feedbackId, range) {
+            const input = document.getElementById(inputId);
+            const feedbackDiv = document.getElementById(feedbackId);
+            input.min = range.a_min;
+            input.max = range.a_max;
+            input.addEventListener('input', () => {
+                const value = parseFloat(input.value);
+                feedbackDiv.textContent = '';
+                if (isNaN(value)) return;
+                if (value < range.a_min || value > range.a_max) {
+                    feedbackDiv.textContent = `Impossible! Must be ${range.a_min}-${range.a_max}.`;
+                    feedbackDiv.className = 'vital-feedback mt-1 text-danger';
+                } else if (value < range.n_min || value > range.n_max) {
+                    feedbackDiv.textContent = `Warning: Normal is ${range.n_min}-${range.n_max}.`;
+                    feedbackDiv.className = 'vital-feedback mt-1 text-warning';
+                } else {
+                    feedbackDiv.textContent = '✓ Normal';
+                    feedbackDiv.className = 'vital-feedback mt-1 text-success';
+                }
+            });
+        }
+
+        if (ranges) {
+            validateVital('temperature', 'temp-feedback', ranges.temp);
+            validateVital('heart_rate', 'hr-feedback', ranges.hr);
+            validateVital('respiratory_rate', 'rr-feedback', ranges.rr);
+        }
+
+        function runFinalValidation() {
+            let isValid = true;
+            const errorMsgDiv = document.getElementById('validation-error-message');
+            if (!ranges) return true;
+            const vitalsToCheck = [
+                { id: 'temperature', range: ranges.temp, name: 'Temperature' },
+                { id: 'heart_rate', range: ranges.hr, name: 'Heart Rate' },
+                { id: 'respiratory_rate', range: ranges.rr, name: 'Respiratory Rate' }
+            ];
+            for (const vital of vitalsToCheck) {
+                const input = document.getElementById(vital.id);
+                const value = parseFloat(input.value);
+                if (isNaN(value) || value < vital.range.a_min || value > vital.range.a_max) {
+                    input.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    input.classList.remove('is-invalid');
+                }
+            }
+            if (!isValid) {
+                errorMsgDiv.textContent = 'Please correct the highlighted vital signs. The entered values are not possible for this species.';
+                errorMsgDiv.style.display = 'block';
+            } else {
+                errorMsgDiv.style.display = 'none';
+            }
+            return isValid;
+        }
+
+        document.getElementById('predictionForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            if (!runFinalValidation()) return;
+            const submitButton = this.querySelector('button[type="submit"]');
+            const spinner = this.querySelector('.loading-spinner');
+            submitButton.style.display = 'none';
+            spinner.style.display = 'inline-block';
+            document.getElementById('predictionResult').innerHTML = '';
+            const selectedSymptoms = Array.from(document.getElementById('general_symptoms').selectedOptions).map(option => option.value);
+            const formData = {
+                pet_id: '{{ pet_id }}', species: document.getElementById('species').value, breed: document.getElementById('breed').value, age: document.getElementById('age').value, weight: document.getElementById('weight').value, heart_rate: document.getElementById('heart_rate').value, respiratory_rate: document.getElementById('respiratory_rate').value, temperature: document.getElementById('temperature').value, symptoms: selectedSymptoms.length > 0 ? selectedSymptoms : ['None'], vaccination_status: document.getElementById('vaccination_status').value, hydration: document.getElementById('hydration_status').value, activity_level: document.getElementById('activity_level').value, diet: document.getElementById('diet').value
+            };
+            setTimeout(() => {
+                fetch('/predict_health', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData) })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) throw new Error(data.error);
+                    displayResults(data);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('predictionResult').innerHTML = `<div class="alert alert-danger">An error occurred during analysis: ${error.message}</div>`;
+                })
+                .finally(() => {
+                    submitButton.style.display = 'inline-block';
+                    spinner.style.display = 'none';
+                });
+            }, 1000);
+        });
+
+        // --- THIS IS THE FIX ---
+        // The complete, correct function to display results on the page.
+        function displayResults(data) {
+            const resultDiv = document.getElementById('predictionResult');
+            let statusClass = 'result-card-healthy';
+            if (data.status === 'At Risk') statusClass = 'result-card-at-risk';
+            if (data.status === 'Unhealthy') statusClass = 'result-card-unhealthy';
+
+            let vetCareHtml = '';
+            if (data.vet_care) {
+                for (const [care, priority] of Object.entries(data.vet_care)) {
+                    let badgeClass = 'bg-secondary';
+                    if (priority === 'Medium') badgeClass = 'bg-warning text-dark';
+                    if (priority === 'High') badgeClass = 'bg-danger';
+                    if (priority === 'Critical') badgeClass = 'bg-dark text-white';
+                    vetCareHtml += `<li class="list-group-item vet-care-item">${care}<span class="badge rounded-pill ${badgeClass} priority-badge">${priority}</span></li>`;
+                }
+            }
+
+            resultDiv.innerHTML = `
+                <hr>
+                <h2 class="text-center mb-4">Assessment Complete</h2>
+                <div class="card result-card ${statusClass}">
+                    <div class="card-body">
+                        <h4 class="card-title">Health Assessment Result</h4>
+                        <p><strong>Status:</strong> <span class="fw-bold">${data.status}</span></p>
+                        <p><strong>Description:</strong> ${data.description}</p>
+                        <p><strong>Confidence:</strong> ${data.confidence}</p>
+                        <p><strong>Health Score:</strong> ${data.health_score}/100</p>
+                    </div>
+                </div>
+                <div class="recommendations row mt-4">
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-header"><i class="fas fa-exclamation-triangle"></i> Immediate Actions</div>
+                            <ul class="list-group list-group-flush">${data.immediate_actions.map(item => `<li class="list-group-item">${item}</li>`).join('')}</ul>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-header"><i class="fas fa-apple-alt"></i> Lifestyle Changes</div>
+                            <ul class="list-group list-group-flush">${data.lifestyle_changes.map(item => `<li class="list-group-item">${item}</li>`).join('')}</ul>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-header"><i class="fas fa-calendar-alt"></i> Monitoring Plan</div>
+                            <ul class="list-group list-group-flush">${data.monitoring_plan.map(item => `<li class="list-group-item">${item}</li>`).join('')}</ul>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-header"><i class="fas fa-user-md"></i> Veterinary Care</div>
+                            <ul class="list-group list-group-flush">${vetCareHtml || '<li class="list-group-item">None recommended at this time.</li>'}</ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    });
+</script>
+{% endblock %}

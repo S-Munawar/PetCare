@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+
+{% block title %}Pet Health History{% endblock %}
+
+{% block content %}
+<!-- ** NEW: Page-specific styles for a stable and theme-aware layout ** -->
+<style>
+    .history-container {
+        background-color: var(--bg-surface);
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+    }
+    .report-item {
+        background-color: var(--bg-surface);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        margin-bottom: 1rem;
+        overflow: hidden;
+    }
+    .report-header {
+        display: flex;
+        align-items: center;
+        width: 100%;
+    }
+    .report-header .form-check {
+        padding: 1rem 0 1rem 2.5rem;
+    }
+    .report-header .accordion-button {
+        flex-grow: 1;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+    .action-container {
+        padding: 0.5rem 1rem;
+        border-left: 1px solid var(--border-color);
+    }
+    .accordion-button {
+        background-color: var(--bg-surface);
+        color: var(--text-primary);
+        font-weight: 500;
+    }
+    .accordion-button:not(.collapsed) {
+        background-color: var(--bg-body);
+        box-shadow: none;
+        color: var(--primary);
+    }
+    .accordion-button:focus {
+        box-shadow: none;
+        border-color: transparent;
+    }
+    [data-theme="dark"] .accordion-button::after {
+        filter: invert(1) grayscale(100) brightness(200%);
+    }
+    .accordion-body {
+        color: var(--text-primary);
+    }
+    .accordion-body h5, .accordion-body h6, .accordion-body p, .accordion-body li {
+        color: var(--text-primary);
+    }
+    [data-theme="dark"] .modal-content {
+        background-color: var(--bg-surface);
+        border-color: var(--border-color);
+    }
+    [data-theme="dark"] .modal-header, [data-theme="dark"] .modal-footer {
+        border-color: var(--border-color);
+    }
+    [data-theme="dark"] .btn-close {
+        filter: invert(1) grayscale(100) brightness(200%);
+    }
+</style>
+
+<div class="container my-5">
+    <div class="history-container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Health History for {{ pet.name }}</h1>
+            <a href="{{ url_for('profile_page') }}" class="btn btn-secondary">Back to Profile</a>
+        </div>
+
+        {% if history %}
+            {% set is_owner = (pet and pet.owner_id|string == current_user.id) %}
+
+            {% if is_owner %}
+            <div class="selection-controls d-flex justify-content-between align-items-center p-3 mb-3 border rounded">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="selectAllCheckbox">
+                    <label class="form-check-label" for="selectAllCheckbox">
+                        <strong>Select All</strong>
+                    </label>
+                </div>
+                <button id="deleteSelectedBtn" class="btn btn-danger" disabled data-bs-toggle="modal" data-bs-target="#deleteSelectedModal">
+                    <i class="fas fa-trash-alt"></i> Delete Selected
+                </button>
+            </div>
+            {% endif %}
+
+            <div class="accordion" id="healthHistoryAccordion">
+                {% for report in history %}
+                    <div class="report-item">
+                        <!-- ** THE FIX: A completely restructured header for stability ** -->
+                        <div class="report-header">
+                            <!-- Checkbox -->
+                            {% if is_owner %}
+                            <div class="form-check">
+                                <input class="form-check-input report-checkbox" type="checkbox" value="{{ report._id }}" id="check-{{ report._id }}">
+                            </div>
+                            {% endif %}
+                            <!-- Accordion Toggle Button -->
+                            <div class="accordion-header flex-grow-1" id="heading-{{ report._id }}">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ report._id }}" aria-expanded="false" aria-controls="collapse-{{ report._id }}">
+                                    <strong>Report Date:</strong>&nbsp;{{ report.report_date.strftime('%Y-%m-%d %H:%M') }}&nbsp;-&nbsp;
+                                    <strong>Status:</strong>&nbsp;{{ report.prediction_result.status }} ({{ report.prediction_result.health_score }}/100)
+                                </button>
+                            </div>
+                            <!-- Single Delete Button -->
+                            {% if is_owner %}
+                            <div class="action-container">
+                                <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteReportModal-{{ report._id }}">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <!-- Accordion Content -->
+                        <div id="collapse-{{ report._id }}" class="accordion-collapse collapse" aria-labelledby="heading-{{ report._id }}" data-bs-parent="#healthHistoryAccordion">
+                            <div class="accordion-body">
+                                <h5>Assessment: {{ report.prediction_result.description }}</h5>
+                                <hr>
+                                <h6>Symptoms Reported:</h6>
+                                <p>{{ report.input_data.symptoms }}</p>
+                                <h6>Veterinary Care Recommended:</h6>
+                                <ul>
+                                    {% for care, priority in report.prediction_result.vet_care.items() %}
+                                        <li>{{ care }} - <strong>Priority: {{ priority }}</strong></li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Delete Confirmation Modal -->
+                    {% if is_owner %}
+                    <div class="modal fade" id="deleteReportModal-{{ report._id }}" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Confirm Deletion</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    Are you sure you want to permanently delete this health report?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <form action="{{ url_for('delete_health_report', report_id=report._id) }}" method="POST">
+                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info" role="alert">
+                No health reports found for {{ pet.name }}.
+            </div>
+        {% endif %}
+
+        <!-- Modal for Deleting Selected Reports -->
+        {% if is_owner %}
+        <div class="modal fade" id="deleteSelectedModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirm Bulk Deletion</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to permanently delete the selected health reports?
+                    </div>
+                    <div class="modal-footer">
+                        <form id="deleteSelectedForm" action="{{ url_for('delete_selected_reports') }}" method="POST">
+                            <input type="hidden" name="report_ids_to_delete" id="report_ids_to_delete">
+                            <input type="hidden" name="pet_id" value="{{ pet._id }}">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-danger">Delete Selected</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+        const reportCheckboxes = document.querySelectorAll('.report-checkbox');
+        const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+        const reportIdsInput = document.getElementById('report_ids_to_delete');
+
+        function toggleDeleteButton() {
+            if (!deleteSelectedBtn) return;
+            const anyChecked = Array.from(reportCheckboxes).some(cb => cb.checked);
+            deleteSelectedBtn.disabled = !anyChecked;
+        }
+
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', function () {
+                reportCheckboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                });
+                toggleDeleteButton();
+            });
+        }
+
+        reportCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function () {
+                if (!this.checked && selectAllCheckbox) {
+                    selectAllCheckbox.checked = false;
+                }
+                toggleDeleteButton();
+            });
+        });
+
+        if (deleteSelectedBtn) {
+            deleteSelectedBtn.addEventListener('click', function () {
+                const selectedIds = Array.from(reportCheckboxes)
+                    .filter(cb => cb.checked)
+                    .map(cb => cb.value);
+
+                if (reportIdsInput) {
+                    reportIdsInput.value = selectedIds.join(',');
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

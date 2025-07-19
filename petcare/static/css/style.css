@@ -1,0 +1,247 @@
+/* --- PetCare CSS - with Light & Dark Themes --- */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+/* Light Theme (Default) */
+:root {
+    --primary: #007bff;
+    --secondary: #6c757d;
+    --success: #28a745;
+    --danger: #dc3545;
+    --info: #17a2b8;
+    --light: #f8f9fa;
+    --dark: #343a40;
+    --white: #ffffff;
+    --text-primary: #212529;
+    --text-secondary: #6c757d;
+    --bg-body: #f8f9fa;
+    --bg-surface: #ffffff;
+    --border-color: #dee2e6;
+    --border-radius: .5rem;
+    --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Dark Theme */
+[data-theme="dark"] {
+    --primary: #4299e1;
+    --secondary: #a0aec0;
+    --success: #48bb78;
+    --danger: #f56565;
+    --info: #4fd1c5;
+    --light: #f7fafc;
+    --dark: #1a202c;
+    --text-primary: #e2e8f0;
+    --text-secondary: #a0aec0;
+    --bg-body: #1a202c;
+    --bg-surface: #2d3748;
+    --border-color: #4a5568;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-body);
+    color: var(--text-primary);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+main { flex: 1; }
+
+.navbar {
+    background-color: var(--bg-surface);
+    box-shadow: var(--box-shadow);
+    border-bottom: 1px solid var(--border-color);
+}
+.navbar-brand {
+    color: var(--primary) !important;
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+.nav-link {
+    color: var(--text-secondary) !important;
+    font-weight: 500;
+}
+.nav-link:hover {
+    color: var(--primary) !important;
+}
+
+.content-container, .form-container {
+    background-color: var(--bg-surface);
+    padding: 2.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+.form-container {
+    max-width: 500px;
+    margin: 2rem auto;
+}
+.form-container h1 {
+    color: var(--text-primary);
+}
+.form-control, .form-select {
+    background-color: var(--bg-body);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+.form-control::placeholder {
+    color: var(--text-secondary);
+}
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary);
+    background-color: var(--bg-body);
+    color: var(--text-primary);
+    box-shadow: 0 0 0 3px rgba(var(--primary), 0.25);
+}
+
+
+.btn {
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    padding: 0.6rem 1.2rem;
+    transition: transform .2s, box-shadow .2s;
+}
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+}
+.btn-primary { background-color: var(--primary); border-color: var(--primary); color: var(--white); }
+.btn-info { background-color: var(--info); border-color: var(--info); color: var(--white); }
+.btn-danger { background-color: var(--danger); border-color: var(--danger); color: var(--white); }
+.btn-success { background-color: var(--success); border-color: var(--success); color: var(--white); }
+
+.card {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    box-shadow: none;
+    transition: transform .2s, box-shadow .2s;
+}
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--box-shadow);
+}
+.card-title {
+    color: var(--primary);
+}
+.card-body, .card-header, .card-footer {
+    color: var(--text-primary);
+}
+
+.home-hero {
+    background-color: var(--dark);
+    color: var(--white);
+    text-align: center;
+    padding: 6rem 1.5rem;
+}
+.home-hero h1 {
+    color: var(--white);
+}
+
+footer {
+    background-color: var(--dark);
+    color: var(--light);
+    padding: 2.5rem 0;
+    text-align: center;
+    margin-top: 3rem;
+}
+footer a {
+    color: var(--info);
+    text-decoration: none;
+}
+footer a:hover {
+    text-decoration: underline;
+}
+
+/* Theme Toggle Switch */
+.theme-switch {
+    background: none;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    padding: 0.3rem 0.6rem;
+}
+.theme-switch .fa-sun { display: none; }
+.theme-switch .fa-moon { display: block; }
+
+[data-theme="dark"] .theme-switch .fa-sun { display: block; }
+[data-theme="dark"] .theme-switch .fa-moon { display: none; }
+
+[data-theme="dark"] .text-muted {
+    color: var(--text-secondary) !important;
+}
+
+/* ** NEW: Improved Styles for Health History Accordion ** */
+.history-container {
+    background-color: var(--bg-surface);
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+.accordion-item {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    margin-bottom: 1rem;
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+}
+.accordion-item:hover {
+    box-shadow: var(--box-shadow);
+}
+
+.accordion-header {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.accordion-header .form-check {
+    padding: 1rem 1.25rem;
+    border-right: 1px solid var(--border-color);
+}
+
+.accordion-button {
+    flex-grow: 1;
+    background-color: var(--bg-surface);
+    color: var(--text-primary);
+    font-weight: 500;
+}
+.accordion-button:not(.collapsed) {
+    background-color: var(--bg-body);
+    box-shadow: none;
+    color: var(--primary);
+}
+.accordion-button:focus {
+    box-shadow: none;
+    border-color: transparent;
+}
+[data-theme="dark"] .accordion-button::after {
+    filter: invert(1) grayscale(100) brightness(200%);
+}
+
+.action-container {
+    padding: 0.5rem 1rem;
+    border-left: 1px solid var(--border-color);
+}
+
+.accordion-body {
+    color: var(--text-primary);
+}
+.accordion-body h5, .accordion-body h6, .accordion-body p, .accordion-body li {
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .modal-content {
+    background-color: var(--bg-surface);
+    border-color: var(--border-color);
+}
+[data-theme="dark"] .modal-header,
+[data-theme="dark"] .modal-footer {
+    border-color: var(--border-color);
+}
+[data-theme="dark"] .btn-close {
+    filter: invert(1) grayscale(100) brightness(200%);
+}

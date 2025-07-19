@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Consult a Veterinarian</h1>
+    <p class="lead">Here you can find a list of licensed veterinarians registered on PetCare. You can contact them for professional advice and consultations.</p>
+
+    {% if vets %}
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+        {% for vet in vets %}
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">Dr. {{ vet.username }}</h5>
+                    <small class="text-muted">{{ vet.qualification }}</small>
+                </div>
+                <div class="card-body">
+                    <p class="card-text"><strong>Email:</strong> {{ vet.email }}</p>
+                    <p class="card-text"><strong>Phone:</strong> {{ vet.phone }}</p>
+                    <p class="card-text"><strong>Address:</strong> {{ vet.address }}</p>
+                    <!-- The vet license number is no longer displayed here. -->
+                </div>
+                <div class="card-footer text-center">
+                    <a href="mailto:{{ vet.email }}" class="btn btn-primary btn-sm">Contact via Email</a>
+                    <a href="tel:{{ vet.phone }}" class="btn btn-secondary btn-sm">Call Now</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        No veterinarians are currently registered on the platform.
+    </div>
+    {% endif %}
+
+    <div class="mt-5">
+        <a href="{{ url_for('main_page') }}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %}
