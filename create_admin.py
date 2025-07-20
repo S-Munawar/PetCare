@@ -1,8 +1,8 @@
 import os
+import getpass
 from pymongo import MongoClient
 from flask_bcrypt import Bcrypt
 from dotenv import load_dotenv
-import getpass
 
 
 def create_admin_user():
@@ -15,17 +15,19 @@ def create_admin_user():
     mongo_uri = os.getenv("MONGO_URI")
 
     if not mongo_uri:
-        print("\nError: MONGO_URI not found in .env file.")
+        print("\nError: MONGO_URI not found in your .env file.")
         print("Please ensure your .env file is correctly configured.")
         return
 
+    client = None  # Initialize client to None
     try:
         client = MongoClient(mongo_uri)
         db = client.get_database()
         users_collection = db.users
         bcrypt = Bcrypt()
     except Exception as e:
-        print(f"\nError connecting to the database: {e}")
+        print(f"\nError: Could not connect to the database.")
+        print(f"Details: {e}")
         return
 
     print("--- Create PetCare Admin User ---")
@@ -71,7 +73,7 @@ def create_admin_user():
         "username": username,
         "email": email,
         "password": hashed_password,
-        "phone": "",  # Admin can add this later via profile page if needed
+        "phone": "",  # Admin can add this later via profile page
         "address": "",  # Admin can add this later
         "is_vet": False,
         "is_admin": True,
@@ -83,9 +85,11 @@ def create_admin_user():
         print(f"\nAdmin user '{username}' created successfully!")
         print("You can now log in using the main /login route.")
     except Exception as e:
-        print(f"\nError creating admin user: {e}")
+        print(f"\nError: Could not create admin user in the database.")
+        print(f"Details: {e}")
     finally:
-        client.close()
+        if client:
+            client.close()
 
 
 if __name__ == "__main__":

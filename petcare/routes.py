@@ -382,6 +382,35 @@ def add_pet_page():
     breeds_data = {'Dog': form.dog_breeds, 'Cat': form.cat_breeds, 'Horse': form.horse_breeds}
     return render_template('add_pet.html', form=form, breeds_data=breeds_data)
 
+@app.route('/delete_account', methods=['POST'])
+@login_required
+def delete_account():
+    """Handles the cascading deletion of a user account."""
+    if current_user.is_admin:
+        flash("Admin accounts cannot be deleted from the web interface.", "danger")
+        return redirect(url_for('profile_page'))
+
+    # Find all pets owned by the current user
+    pets_to_delete = list(mongo.db.pets.find({"owner_id": ObjectId(current_user.id)}))
+    pet_ids_to_delete = [pet['_id'] for pet in pets_to_delete]
+
+    # If the user has pets, delete their health reports first
+    if pet_ids_to_delete:
+        mongo.db.health_reports.delete_many({"pet_id": {"$in": pet_ids_to_delete}})
+
+    # Delete all pets owned by the user
+    mongo.db.pets.delete_many({"owner_id": ObjectId(current_user.id)})
+
+    # If the user is a vet, remove their links to consulted pets
+    if current_user.is_vet:
+        mongo.db.vet_pet_links.delete_many({"vet_id": ObjectId(current_user.id)})
+
+    # Finally, delete the user themselves
+    mongo.db.users.delete_one({"_id": ObjectId(current_user.id)})
+
+    logout_user()
+    flash("Your account and all associated data have been permanently deleted.", "success")
+    return redirect(url_for('home_page'))
 
 @app.route('/remove_pet/<pet_id>', methods=['POST'])
 @login_required

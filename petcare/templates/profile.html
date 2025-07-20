@@ -60,5 +60,21 @@
     <div class="d-flex justify-content-center mt-5">
         <a href="{{ url_for('logout_page') }}" class="btn btn-danger">Logout</a>
     </div>
+
+    <hr class="my-5">
+    <div class="card border-danger text-center">
+        <div class="card-header bg-danger text-white">
+            Danger Zone
+        </div>
+        <div class="card-body">
+            <h5 class="card-title">Delete Your Account</h5>
+            <p class="card-text">Once you delete your account, there is no going back. Please be certain.</p>
+            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                Delete Account
+            </button>
+        </div>
+    </div>
 </div>
+
+{% include 'includes/delete_account_modal.html' %}
 {% endblock %}

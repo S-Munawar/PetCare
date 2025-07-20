@@ -1,25 +1,44 @@
 {% extends "base.html" %}
 
 {% block content %}
+
+    <style>
+        .search-container { max-width: 600px; margin: 0 auto; }
+    </style>
 <div class="container mt-5">
-    <h1 class="mb-4">Veterinarian Dashboard</h1>
-    <h3 class="text-muted mb-4">Your Consulted Pets</h3>
+    <div class="text-center mb-4">
+        <h1 class="mb-2">Veterinarian Dashboard</h1>
+        <p class="lead text-muted">Your Consulted Pets</p>
+    </div>
+
+    <div class="row justify-content-center mb-4 search-container">
+        <div class="col-md-8">
+            <div class="input-group">
+                <input type="text" class="form-control" id="petSearchInput" placeholder="Search by name or Pet ID...">
+                <button class="btn btn-primary" type="button"><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+    </div>
 
     {% if consulted_pets %}
-        <div class="list-group">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4" id="consultedPetGrid">
             {% for pet in consulted_pets %}
-                <div class="list-group-item d-flex justify-content-between align-items-center">
-                    <div>
-                        <h5 class="mb-1">{{ pet.name }}</h5>
-                        <small>Species: {{ pet.species }} | Breed: {{ pet.breed }}</small>
-                    </div>
-                    <div>
-                        <a href="{{ url_for('pet_health_history_page', pet_id=pet._id) }}" class="btn btn-info btn-sm me-2">
-                            <i class="fas fa-history"></i> History
-                        </a>
-                        <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#removeConsultedPetModal-{{ pet._id }}" title="Remove from your list">
-                            <i class="fas fa-times-circle"></i> Remove
-                        </button>
+                <div class="col pet-card" data-name="{{ pet.name|lower }}" data-id="{{ pet._id|string }}">
+                    <div class="card text-center h-100">
+                        <div class="card-body d-flex flex-column justify-content-center">
+                            <i class="fas fa-paw fa-3x mb-3 text-secondary"></i>
+                            <h5 class="card-title">{{ pet.name }}</h5>
+                            <p class="card-text text-muted">{{ pet.species }} - {{ pet.breed }}</p>
+                            <p class="card-text text-muted small mt-2">ID: {{ pet._id }}</p>
+                        </div>
+                        <div class="card-footer">
+                            <div class="d-flex justify-content-center align-items-center gap-2">
+                                <a href="{{ url_for('pet_health_history_page', pet_id=pet._id) }}" class="btn btn-info btn-sm">History</a>
+                                <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#removeConsultedPetModal-{{ pet._id }}">
+                                    Remove
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 {% include 'includes/remove_consulted_pet_modal.html' %}
@@ -31,4 +50,25 @@
         </div>
     {% endif %}
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchInput = document.getElementById('petSearchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', function () {
+                const searchQuery = this.value.trim().toLowerCase();
+                document.querySelectorAll('.pet-card').forEach(petCard => {
+                    const petName = petCard.getAttribute('data-name');
+                    const petId = petCard.getAttribute('data-id');
+
+                    if (petName.includes(searchQuery) || petId.includes(searchQuery)) {
+                        petCard.style.display = "block";
+                    } else {
+                        petCard.style.display = "none";
+                    }
+                });
+            });
+        }
+    });
+</script>
 {% endblock %}
