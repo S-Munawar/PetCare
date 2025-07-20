@@ -11,6 +11,18 @@ PetCare is a modern web application designed to empower pet owners and veterinar
 * **Secure Authentication:** Robust login system with email verification and Google OAuth for both pet owners and veterinarians.
 * **Light & Dark Mode:** A modern, theme-able user interface for a comfortable viewing experience.
 
+## Screenshots
+
+| Register                               | Login                                |
+| -------------------------------------- | ------------------------------------ |
+| ![Register Page](Images/1.png)         | ![Login Page](Images/2.png)          |
+| **Home** | **Add Pet** |
+| ![Home Page](Images/3.png)             | ![Add Pet Page](Images/4.png)        |
+| **Health Analysis** | **Consult Veterinarian** |
+| ![Health Analysis](Images/5.png)       | ![Consult Page](Images/6.png)        |
+| **Profile** |                                      |
+| ![Profile Page](Images/7.png)          |                                      |
+
 ## Technology Stack 🛠️
 
 * **Backend:** Flask, Flask-Login, Flask-Bcrypt, Gunicorn
@@ -28,6 +40,7 @@ Follow these instructions to get a local copy of the project up and running.
 
 * Python 3.9 or higher
 * A running MongoDB instance (local or cloud-based)
+* Docker (for containerized deployment)
 
 ### Installation
 
@@ -55,7 +68,7 @@ Follow these instructions to get a local copy of the project up and running.
 
 4.  **Configure Environment Variables**
     * Create a file named `.env` in the root of the project.
-    * Add your configuration details to this file. It must include your MongoDB connection string and a secret key.
+    * Add your configuration details to this file. It must include your MongoDB connection string, a secret key, and email credentials.
         ```env
         SECRET_KEY='a_very_long_and_random_secret_key'
         MONGO_URI='your_mongodb_connection_string'
@@ -77,3 +90,40 @@ Once everything is installed and configured, you can start the Flask development
 
 ```bash
 flask run
+```
+
+The application will be available at `http://127.0.0.1:5000`.
+
+### Creating an Admin User
+
+To create the first administrator account, run the `create_admin.py` script from your **terminal** (not the IDE's run console):
+
+```bash
+python create_admin.py
+```
+
+Follow the prompts to set up the username, email, and password for the admin account.
+
+## Docker Deployment
+
+You can also run the application in a Docker container for a standardized deployment.
+
+1.  **Build the Docker Image**
+    ```bash
+    docker build -t petcare-app .
+    ```
+
+2.  **Run the Docker Container**
+    * Make sure to provide your `MONGO_URI` as an environment variable.
+    ```bash
+    docker run -d -p 5000:5000 --restart always \
+      -e MONGO_URI="your_mongodb_connection_string" \
+      --name petcare-container \
+      petcare-app
+    ```
+
+## Author
+
+**Shaik Abdul Munawar**
+
+* [LinkedIn Profile](https://www.linkedin.com/in/shaik-abdul-munawar-b35821284)
