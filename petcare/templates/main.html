@@ -17,7 +17,7 @@
             <a href="{{ url_for('add_pet_page') }}" class="text-decoration-none text-dark">
                 <div class="card text-center h-100">
                     <div class="card-body d-flex flex-column justify-content-center p-4">
-                        <i class="fas fa-paw fa-3x mb-3" style="color: var(--secondary);"></i>
+                        <i class="fas fa-paw fa-3x mb-3" style="color: var(--primary);"></i>
                         <h5 class="card-title">Add a New Pet</h5>
                         <p class="card-text text-muted">Create a profile for a new animal companion.</p>
                     </div>
@@ -43,13 +43,27 @@
             <a href="{{ url_for('consult_veterinarian_page') }}" class="text-decoration-none text-dark">
                 <div class="card text-center h-100">
                     <div class="card-body d-flex flex-column justify-content-center p-4">
-                        <i class="fas fa-user-md fa-3x mb-3" style="color: var(--info);"></i>
+                        <i class="fas fa-user-md fa-3x mb-3" style="color: var(--bg-logo);"></i>
                         <h5 class="card-title">Consult a Vet</h5>
                         <p class="card-text text-muted">Get professional advice from licensed veterinarians.</p>
                     </div>
                 </div>
             </a>
         </div>
+
+        <!-- Card: AI Pet Advisor -->
+        <div class="col">
+            <a href="{{ url_for('ai_pet_advisor_page') }}" class="text-decoration-none">
+                <div class="card text-center h-100 dashboard-card">
+                    <div class="card-body d-flex flex-column justify-content-center p-4">
+                        <i class="fas fa-robot fa-3x" style="color: var(--info);"></i>
+                        <h5 class="card-title mt-3">AI Pet Advisor</h5>
+                        <p class="card-text text-muted">Get AI-powered advice on your pet's diet, training, and wellness.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
 
         <!-- Card: Admin Dashboard (Conditional) -->
         {% if current_user.is_admin %}
@@ -84,3 +98,4 @@
     </div>
 </div>
 {% endblock %}
+

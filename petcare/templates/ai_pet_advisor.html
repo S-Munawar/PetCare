@@ -1,0 +1,277 @@
+{% extends "base.html" %}
+
+{% block styles %}{% endblock %}
+
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-10 col-xl-9">
+        <div class="card advisor-card" data-api-key="{{ gemini_api_key or '' }}">
+            <div class="card-body p-4 p-md-5">
+
+                <!-- Header Section -->
+                <div class="text-center mb-5">
+                    <div class="advisor-icon-wrapper">
+                        <img src="{{ url_for('static', filename='images/PetCare.jpg') }}" alt="Happy Pet" class="img-fluid rounded-circle shadow-lg">
+                    </div>
+                    <h1 class="card-title h2">AI PetCare Hub</h1>
+                    <p class="text-muted">Your all-in-one assistant for pet wellness, diet, and training.</p>
+                </div>
+
+                <!-- Tab Navigation -->
+                <ul class="nav nav-tabs nav-fill mb-4" id="advisorTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general-tab-pane" type="button" role="tab" aria-controls="general-tab-pane" aria-selected="true">General Advisor</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="diet-tab" data-bs-toggle="tab" data-bs-target="#diet-tab-pane" type="button" role="tab" aria-controls="diet-tab-pane" aria-selected="false">✨ Diet Planner</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="training-tab" data-bs-toggle="tab" data-bs-target="#training-tab-pane" type="button" role="tab" aria-controls="training-tab-pane" aria-selected="false">✨ Training Guide</button>
+                    </li>
+                </ul>
+
+                <!-- Tab Content -->
+                <div class="tab-content pt-3" id="advisorTabContent">
+                    <!-- General Advisor Pane -->
+                    <div class="tab-pane fade show active" id="general-tab-pane" role="tabpanel" aria-labelledby="general-tab" tabindex="0">
+                        <form id="advisor-form">
+                            <div class="mb-3">
+                                <label for="question-input" class="form-label visually-hidden">Your Question</label>
+                                <textarea id="question-input" rows="3" class="form-control" placeholder="Ask anything about your pet's well-being, training, or nutrition!"></textarea>
+                            </div>
+                            <button id="ask-button" type="submit" class="btn btn-primary w-100 py-2">Ask the Advisor</button>
+                        </form>
+                        <div class="response-container mt-4">
+                            {# UPDATED: Image wrapper is now a grid container #}
+                            <div id="advisor-image-wrapper" class="image-wrapper d-none">
+                                <!-- JS will insert images here -->
+                            </div>
+                            <div id="advisor-response" class="response-area">Your AI-powered advice will appear here.</div>
+                        </div>
+                    </div>
+
+                    <!-- Diet Planner Pane -->
+                    <div class="tab-pane fade" id="diet-tab-pane" role="tabpanel" aria-labelledby="diet-tab" tabindex="0">
+                        <form id="diet-form">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label for="pet-type" class="form-label visually-hidden">Pet Type</label>
+                                    <input id="pet-type" type="text" class="form-control" placeholder="Pet Type (e.g., Dog)">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="pet-age" class="form-label visually-hidden">Pet Age</label>
+                                    <input id="pet-age" type="text" class="form-control" placeholder="Age (e.g., 2 years)">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="pet-allergies" class="form-label visually-hidden">Pet Allergies</label>
+                                    <input id="pet-allergies" type="text" class="form-control" placeholder="Allergies (e.g., chicken)">
+                                </div>
+                            </div>
+                            <button id="diet-button" type="submit" class="btn btn-success w-100 py-2 mt-3">✨ Generate Diet Plan</button>
+                        </form>
+                         <div class="response-container mt-4">
+                            <div id="diet-image-wrapper" class="image-wrapper d-none">
+                                <!-- JS will insert images here -->
+                            </div>
+                            <div id="diet-response" class="response-area">Your pet's diet plan will appear here.</div>
+                        </div>
+                    </div>
+
+                    <!-- Training Guide Pane -->
+                    <div class="tab-pane fade" id="training-tab-pane" role="tabpanel" aria-labelledby="training-tab" tabindex="0">
+                        <form id="training-form">
+                            <div class="mb-3">
+                                <label for="training-goal" class="form-label visually-hidden">Training Goal</label>
+                                <input id="training-goal" type="text" class="form-control" placeholder="Training Goal (e.g., Teach to 'sit')">
+                            </div>
+                            <button id="training-button" type="submit" class="btn btn-info w-100 py-2">✨ Create Training Guide</button>
+                        </form>
+                        <div class="response-container mt-4">
+                            <div id="training-image-wrapper" class="image-wrapper d-none">
+                                <!-- JS will insert images here -->
+                            </div>
+                            <div id="training-response" class="response-area">Your training guide will appear here.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Disclaimer -->
+                <div class="text-center mt-4">
+                    <small class="text-muted">Disclaimer: This AI advisor provides general information and is not a substitute for professional veterinary advice. Always consult a licensed veterinarian for medical concerns.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        // Securely get the API key from the data attribute on the main card
+        const advisorCard = document.querySelector('.advisor-card');
+        const GEMINI_API_KEY = advisorCard ? advisorCard.dataset.apiKey : null;
+
+        const ENABLE_IMAGE_GENERATION = true;
+
+        function displayError(container, type, error) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'alert alert-danger mt-2';
+            errorDiv.innerHTML = `<strong>${type} Failed:</strong><br><pre>${error.message}</pre>`;
+            container.innerHTML = '';
+            container.appendChild(errorDiv);
+        }
+
+        async function generateText(prompt, responseContainer) {
+            responseContainer.innerHTML = '';
+            const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ error: { message: "Could not parse error JSON." } }));
+                    throw new Error(`HTTP ${response.status}: ${errorData.error.message}`);
+                }
+                const result = await response.json();
+                let text = "Sorry, a response could not be generated. Please try again.";
+                if (result.candidates?.[0]?.content?.parts?.[0]?.text) {
+                    text = result.candidates[0].content.parts[0].text;
+                }
+                responseContainer.innerHTML = marked.parse(text);
+            } catch (error) {
+                displayError(responseContainer, "Text Generation", error);
+            }
+        }
+
+        // --- UPDATED: Imagen API Call for Multiple Images ---
+        async function generateImage(prompt, imageWrapper) {
+            const responseContainer = imageWrapper.nextElementSibling;
+
+            imageWrapper.classList.remove('d-none');
+            imageWrapper.innerHTML = '<div class="image-loader"></div>'; // Show loader
+
+            // UPDATED: Request 4 images
+            const payload = { instances: [{ prompt: prompt }], parameters: { "sampleCount": 4 } };
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${GEMINI_API_KEY}`;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ error: { message: "Could not parse error JSON." } }));
+                    throw new Error(`HTTP ${response.status}: ${errorData.error.message}`);
+                }
+                const result = await response.json();
+
+                imageWrapper.innerHTML = ''; // Clear loader
+
+                if (result.predictions && result.predictions.length > 0) {
+                    // Loop through all returned images and create them
+                    result.predictions.forEach(prediction => {
+                        if (prediction.bytesBase64Encoded) {
+                            const img = document.createElement('img');
+                            img.src = `data:image/png;base64,${prediction.bytesBase64Encoded}`;
+                            img.alt = "AI generated pet image";
+                            img.className = "generated-image";
+                            imageWrapper.appendChild(img);
+                        }
+                    });
+                } else {
+                    throw new Error("API returned success, but no image data was found in the response.");
+                }
+            } catch (error) {
+                displayError(responseContainer, "Image Generation", error);
+                imageWrapper.classList.add('d-none');
+                imageWrapper.innerHTML = ''; // Clear loader on error
+            }
+        }
+
+        function setupFormListener(formId, createPrompts) {
+            const form = document.getElementById(formId);
+            if (!form) return;
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const button = form.querySelector('button[type="submit"]');
+                const originalButtonText = button.innerHTML;
+
+                if (!GEMINI_API_KEY) {
+                    alert("CRITICAL ERROR: API Key is not configured.");
+                    return;
+                }
+
+                button.disabled = true;
+                button.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Generating...`;
+
+                const prompts = createPrompts();
+                if (!prompts) {
+                    button.disabled = false;
+                    button.innerHTML = originalButtonText;
+                    return;
+                }
+
+                const responseContainer = form.nextElementSibling.querySelector('.response-area');
+                const imageWrapper = form.nextElementSibling.querySelector('.image-wrapper');
+
+                responseContainer.innerHTML = 'Your AI-powered advice will appear here.';
+
+                const apiCalls = [generateText(prompts.text, responseContainer)];
+                if (ENABLE_IMAGE_GENERATION) {
+                    apiCalls.push(generateImage(prompts.image, imageWrapper));
+                } else {
+                    imageWrapper.classList.add('d-none');
+                }
+
+                await Promise.all(apiCalls);
+
+                button.disabled = false;
+                button.innerHTML = originalButtonText;
+            });
+        }
+
+        // General Advisor
+        setupFormListener('advisor-form', () => {
+            const question = document.getElementById('question-input').value.trim();
+            if (!question) return null;
+            return {
+                text: `You are a friendly AI Pet Advisor. A user asks: "${question}". Provide a helpful, well-structured response. Emphasize consulting a vet for health issues. Format with Markdown.`,
+                image: `A high-quality, photorealistic image of an animal related to the following question: "${question}". If no specific animal is mentioned, show a cute, happy dog and cat together in a bright, clean environment.`
+            };
+        });
+
+        // Diet Planner
+        setupFormListener('diet-form', () => {
+            const type = document.getElementById('pet-type').value.trim();
+            const age = document.getElementById('pet-age').value.trim();
+            if (!type || !age) {
+                alert('Please provide at least the pet type and age.');
+                return null;
+            }
+            const allergies = document.getElementById('pet-allergies').value.trim() || 'none';
+            return {
+                text: `Act as an expert pet nutritionist. Create a sample weekly diet plan for a ${type} that is ${age} old with allergies to ${allergies}. The plan should be balanced and varied. Include breakfast, lunch, and dinner for each day. Add a strong disclaimer that this is a sample plan and a vet should be consulted before changing a pet's diet. Format the output as a Markdown table or a well-structured list.`,
+                image: `A high-quality, photorealistic image of a happy and healthy ${type} that is ${age} old, sitting next to a bowl of nutritious food.`
+            };
+        });
+
+        // Training Guide
+        setupFormListener('training-form', () => {
+            const goal = document.getElementById('training-goal').value.trim();
+            if (!goal) return null;
+            return {
+                text: `Act as a professional pet trainer. Create a simple, positive-reinforcement, step-by-step guide for teaching a pet to "${goal}". Break it down into 5-7 easy-to-follow steps. Include tips on what's needed (e.g., treats) and keeping sessions short and fun. Format with Markdown using numbered lists and bold headings.`,
+                image: `A high-quality, photorealistic image of a happy dog successfully learning the command "${goal}" with its owner in a bright, positive setting.`
+            };
+        });
+    </script>
+{% endblock %}

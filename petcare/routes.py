@@ -1,4 +1,5 @@
 # --- Standard Library Imports ---
+import os
 import pickle
 import secrets
 from datetime import datetime
@@ -457,6 +458,18 @@ def analyze_pet_health_page(pet_id):
         today = datetime.utcnow()
         age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
     return render_template('analyze_pet_health.html', selected_pet=selected_pet, pet_id=pet_id, age=age, breed=selected_pet.get('breed'))
+
+
+@app.route('/ai_pet_advisor')
+@login_required
+def ai_pet_advisor_page():
+    """Renders the AI Pet Advisor page and passes the API key."""
+    # Get the API key from your environment variables
+    gemini_api_key = os.getenv("GEMINI_API_KEY")
+
+    # Pass the key to the template
+    return render_template('ai_pet_advisor.html', gemini_api_key=gemini_api_key)
+
 
 
 @app.route('/predict_health', methods=['POST'])

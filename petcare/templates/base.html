@@ -16,12 +16,14 @@
     <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='images/favicon/apple-touch-icon.png') }}">
     <link rel="manifest" href="{{ url_for('static', filename='images/favicon/site.webmanifest') }}">
 
+    {% block styles %}{% endblock %}
+
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light">
         <div class="container">
             <a class="navbar-brand" href="{{ url_for('home_page') }}">
-                <i class="fas fa-paw me-2"></i>PetCare
+                <i class="fas fa-paw me-2" aria-hidden="true"></i>PetCare
             </a>
             <button class="theme-switch navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -36,63 +38,61 @@
                 </ul>
                 <ul class="navbar-nav ms-auto">
                     {% if current_user.is_authenticated %}
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('profile_page') }}"><i class="fas fa-user-circle me-1"></i> Profile</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('logout_page') }}"><i class="fas fa-sign-out-alt me-1"></i> Logout</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('profile_page') }}"><i class="fas fa-user-circle me-1" aria-hidden="true"></i> Profile</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('logout_page') }}"><i class="fas fa-sign-out-alt me-1" aria-hidden="true"></i> Logout</a></li>
                     {% else %}
                         <li class="nav-item"><a class="nav-link" href="{{ url_for('login_page') }}">Login</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ url_for('register_page') }}">Register</a></li>
                     {% endif %}
-                    <!-- ** NEW: Theme Toggle Button ** -->
-                    <div class="theme-switch-wrapper ms-3">
-                        <label class="theme-switch" for="theme-toggle-checkbox">
-                            <input type="checkbox" id="theme-toggle-checkbox" />
-                            <div class="slider round">
-                                <i class="fas fa-moon"></i>
-                                <i class="fas fa-sun"></i>
-                            </div>
-                        </label>
-                    </div>
+                    <li class="nav-item">
+                        <div class="theme-switch-wrapper ms-3">
+                            <label class="theme-switch" for="theme-toggle-checkbox" title="Toggle dark mode">
+                                <input type="checkbox" id="theme-toggle-checkbox" />
+                                <div class="slider round">
+                                    <i class="fas fa-moon" aria-hidden="true"></i>
+                                    <i class="fas fa-sun" aria-hidden="true"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <main>
-        <div class="container mt-4">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-            {% endwith %}
-        </div>
+    <main class="container py-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+
         {% block content %}{% endblock %}
     </main>
 
-    <footer>
-        <div class="container">
+    <footer class="mt-auto py-4">
+        <div class="container text-center">
             <p class="mb-2">&copy; 2025 PetCare. All rights reserved.</p>
-            <div>
-                <a href="#" class="mx-1"><i class="fab fa-facebook-f"></i></a>
-                <a href="#" class="mx-1"><i class="fab fa-twitter"></i></a>
-                <a href="https://youtu.be/Yzv0gXqoCkc?si=nJCPv8S70-3o-ebH" class="mx-1"><i class="fab fa-youtube"></i></a>
-                <a href="#" class="mx-1"><i class="fab fa-instagram"></i></a>
-                <a href="https://chat.whatsapp.com/Kd7R6IXlREgK7D9Srr6PsH" class="mx-1"><i class="fab fa-whatsapp"></i></a>
-                <a href="https://www.linkedin.com/in/shaik-abdul-munawar-b35821284" class="mx-1" target="_blank"><i class="fab fa-linkedin"></i></a>
-            </div>
-
+            {# NEW: Restructured social links for accessibility #}
+            <ul class="list-inline">
+                <li class="list-inline-item"><a href="#" class="mx-1" aria-label="Facebook"><i class="fab fa-facebook-f" aria-hidden="true"></i></a></li>
+                <li class="list-inline-item"><a href="#" class="mx-1" aria-label="Twitter"><i class="fab fa-twitter" aria-hidden="true"></i></a></li>
+                <li class="list-inline-item"><a href="https://youtu.be/Yzv0gXqoCkc?si=nJCPv8S70-3o-ebH" class="mx-1" aria-label="YouTube"><i class="fab fa-youtube" aria-hidden="true"></i></a></li>
+                <li class="list-inline-item"><a href="#" class="mx-1" aria-label="Instagram"><i class="fab fa-instagram" aria-hidden="true"></i></a></li>
+                <li class="list-inline-item"><a href="https://chat.whatsapp.com/Kd7R6IXlREgK7D9Srr6PsH" class="mx-1" aria-label="WhatsApp"><i class="fab fa-whatsapp" aria-hidden="true"></i></a></li>
+                <li class="list-inline-item"><a href="https://www.linkedin.com/in/shaik-abdul-munawar-b35821284" class="mx-1" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin" aria-hidden="true"></i></a></li>
+            </ul>
         </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- ** NEW: JavaScript for Theme Toggling ** -->
     <script>
-        // ** NEW: JavaScript for Classic Toggle Switch **
         (function() {
             const themeToggle = document.getElementById('theme-toggle-checkbox');
             const htmlElement = document.documentElement;
@@ -100,13 +100,17 @@
             function setTheme(theme) {
                 localStorage.setItem('theme', theme);
                 htmlElement.setAttribute('data-theme', theme);
-                themeToggle.checked = theme === 'dark';
+                if (themeToggle) {
+                    themeToggle.checked = theme === 'dark';
+                }
             }
 
-            themeToggle.addEventListener('change', () => {
-                const newTheme = themeToggle.checked ? 'dark' : 'light';
-                setTheme(newTheme);
-            });
+            if(themeToggle) {
+                themeToggle.addEventListener('change', () => {
+                    const newTheme = themeToggle.checked ? 'dark' : 'light';
+                    setTheme(newTheme);
+                });
+            }
 
             const savedTheme = localStorage.getItem('theme');
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -120,5 +124,6 @@
             }
         })();
     </script>
+    {% block scripts %}{% endblock %}
 </body>
 </html>
