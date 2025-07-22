@@ -1,15 +1,11 @@
 services:
   # The Flask web application service.
   web:
-    # Build the Docker image from the Dockerfile in the current directory.
-    build: .
+    # UPDATED: Instead of building, pull the pre-built image from Docker Hub.
     container_name: petcare-web
     ports:
       - "5000:5000"
-    # UPDATED: Reverted to using 'volumes' for live code syncing,
-    # which is compatible with all versions of Docker Compose.
-    volumes:
-      - .:/app
+    # The volume for code syncing is removed for deployment.
     env_file:
       - .env
     depends_on:
