@@ -1,11 +1,15 @@
 services:
   # The Flask web application service.
   web:
-    # UPDATED: Instead of building, pull the pre-built image from Docker Hub.
+    # Build the Docker image from the Dockerfile in the current directory.
+    build: .
     container_name: petcare-web
     ports:
       - "5000:5000"
-    # The volume for code syncing is removed for deployment.
+    # UPDATED: Reverted to using 'volumes' for live code syncing,
+    # which is compatible with all versions of Docker Compose.
+    volumes:
+      - .:/app
     env_file:
       - .env
     depends_on:
@@ -18,7 +22,7 @@ services:
     image: mongo:latest
     container_name: petcare-mongo
     ports:
-      - "27017:27017"
+      - "27018:27017"
     volumes:
       - mongo-data:/data/db
     restart: unless-stopped
