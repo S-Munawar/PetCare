@@ -83,6 +83,20 @@ main { flex: 1; }
     color: var(--primary) !important;
 }
 
+/*
+========================================
+** NEW: Dark Theme Navbar Toggler Fix **
+========================================
+*/
+[data-theme="dark"] .navbar-toggler {
+    border-color: rgba(255,255,255,0.1);
+}
+
+[data-theme="dark"] .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.55%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+
 .content-container, .form-container {
     background-color: var(--bg-surface);
     padding: 2.5rem;
@@ -522,12 +536,36 @@ html[data-theme="dark"] .slider .fa-sun { opacity: 1; }
 
 /*
 ========================================
-** Universal Interactive Card Styles **
+** Interactive Card Styles (Opt-in) **
 ========================================
 */
-.card .card-body {
+.card.card-interactive .card-body {
     position: relative;
     z-index: 2;
+}
+
+.card.card-interactive::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, #0052D4, #4364F7, #6FB1FC);
+    opacity: 0;
+    transition: opacity 0.4s ease-in-out;
+    z-index: 1;
+}
+
+.card.card-interactive:hover::before {
+    opacity: 1;
+}
+
+.card.card-interactive:hover .card-title,
+.card.card-interactive:hover .card-text,
+.card.card-interactive:hover .card-body i {
+    color: var(--white) !important;
+    transition: color 0.4s ease-in-out;
 }
 
 /* Optional: Special styling for cards with icons */
@@ -546,4 +584,12 @@ html[data-theme="dark"] .slider .fa-sun { opacity: 1; }
 .dashboard-card-icon-wrapper i {
     color: var(--info);
     transition: all 0.4s ease-in-out;
+}
+
+.card.card-interactive:hover .dashboard-card-icon-wrapper {
+    background-color: rgba(255,255,255,0.2);
+}
+
+.card.card-interactive:hover .dashboard-card-icon-wrapper i {
+    transform: scale(1.1);
 }
