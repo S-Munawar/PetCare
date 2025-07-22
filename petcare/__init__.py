@@ -7,6 +7,7 @@ from authlib.integrations.flask_client import OAuth
 from dotenv import load_dotenv
 # Import the Mail extension
 from flask_mail import Mail
+from whitenoise import WhiteNoise
 
 load_dotenv()
 
@@ -23,6 +24,10 @@ app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'True').lower() in ['true
 app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_USERNAME')
+
+# --- Static Files Configuration ---
+# It tells your app to serve files from the 'static' directory.
+app.wsgi_app = WhiteNoise(app.wsgi_app, root='static/')
 
 # --- Initialize Extensions ---
 mongo = PyMongo(app)

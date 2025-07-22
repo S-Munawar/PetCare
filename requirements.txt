@@ -38,3 +38,4 @@ requests
 python-dotenv
 # New library for sending emails
 Flask-Mail
+whitenoise

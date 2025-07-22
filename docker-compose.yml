@@ -1,47 +1,31 @@
-# The 'version' attribute is no longer needed in modern Docker Compose.
 services:
   # The Flask web application service.
   web:
     # Build the Docker image from the Dockerfile in the current directory.
     build: .
-    # Name the container for easier identification.
     container_name: petcare-web
-    # Map port 5000 on the host machine to port 5000 in the container.
     ports:
       - "5000:5000"
-    # Mount the current directory into the container's /app directory.
-    # This allows for live code reloading during development.
+    # UPDATED: Reverted to using 'volumes' for live code syncing,
+    # which is compatible with all versions of Docker Compose.
     volumes:
       - .:/app
-    # Load environment variables from the .env file in the project root.
-    # This is the standard way to handle secrets and configuration.
     env_file:
       - .env
-    # Specify that this service depends on the 'mongo' service.
-    # It will wait for the mongo container to be healthy before starting.
     depends_on:
       mongo:
         condition: service_started
-    # Ensure the container restarts automatically if it stops.
     restart: unless-stopped
 
   # The MongoDB database service.
   mongo:
-    # Use the official MongoDB image from Docker Hub.
     image: mongo:latest
-    # Name the container.
     container_name: petcare-mongo
-    # Map the default MongoDB port to the host machine.
     ports:
       - "27017:27017"
-    # Mount a named volume to persist database data.
-    # The data will be stored in the 'mongo-data' volume on the host.
     volumes:
       - mongo-data:/data/db
-    # Ensure the container restarts automatically.
     restart: unless-stopped
 
-# Define the named volumes used by the services.
 volumes:
-  # This volume will store the MongoDB data persistently.
   mongo-data:
