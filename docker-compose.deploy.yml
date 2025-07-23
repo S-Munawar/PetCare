@@ -1,0 +1,30 @@
+# docker-compose.deploy.yml (for production server)
+services:
+  # The Flask web application service
+  web:
+    # Pulls your pre-built image from Docker Hub
+    image: shaikmunawar/petcare-web:latest
+    container_name: petcare-web
+    # Maps the server's standard HTTP port (80) to the container's port (5000)
+    ports:
+      - "80:5000"
+    env_file:
+      - .env
+    depends_on:
+      mongo:
+        condition: service_started
+    # Ensures the app always restarts if it crashes or the server reboots
+    restart: always
+
+  # The MongoDB database service
+  mongo:
+    image: mongo:latest
+    container_name: petcare-mongo
+    # NOTE: Ports are NOT exposed to the public internet for security.
+    # The 'web' service can still connect to it internally.
+    volumes:
+      - mongo-data:/data/db
+    restart: always
+
+volumes:
+  mongo-data:
