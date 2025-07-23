@@ -3,7 +3,7 @@ services:
   # The Flask web application service
   web:
     # Pulls your pre-built image from Docker Hub
-    image: shaikmunawar/petcare-web:latest
+    image: shaikmunawar/petcare-web:1.0
     container_name: petcare-web
     # Maps the server's standard HTTP port (80) to the container's port (5000)
     ports:
